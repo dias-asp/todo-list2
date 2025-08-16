@@ -1,0 +1,126 @@
+<div class="budget-container">
+  <h1 class="mat-headline-4 text-center">Budget Tracker</h1>
+
+  <!-- Balance Display -->
+  <mat-card class="balance-card">
+    <mat-card-content>
+      <div class="balance-display">
+        <h2 class="mat-headline-5">Current Balance</h2>
+        <div class="balance-amount" [ngClass]="{'positive': ((balance$ | async) ?? 0) >= 0, 'negative': ((balance$ | async) ?? 0) < 0}">
+          {{ (balance$ | async) ?? 0 | currency:'₸':'symbol':'1.2-2' }}
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Add new budget item form -->
+  <mat-card class="add-item-card">
+    <mat-card-header>
+      <mat-card-title>Add New Transaction</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="budgetForm" (ngSubmit)="addBudgetItem()" class="form-container">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="name" placeholder="Enter description">
+            <mat-error *ngIf="budgetForm.get('name')?.hasError('required')">
+              Description is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Amount</mat-label>
+            <input matInput formControlName="amount" placeholder="Enter amount (use - for expenses)">
+            <mat-hint>Use negative values for expenses</mat-hint>
+            <mat-error *ngIf="budgetForm.get('amount')?.hasError('required')">
+              Amount is required
+            </mat-error>
+            <mat-error *ngIf="budgetForm.get('amount')?.hasError('pattern')">
+              Please enter a valid number
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit" 
+          [disabled]="budgetForm.invalid || isLoading">
+          <mat-icon>add</mat-icon>
+          Add Transaction
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Month Navigation -->
+  <div class="month-navigation">
+    <button mat-icon-button (click)="previousMonth()" [disabled]="isLoading">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <h2 class="month-display">{{ (currentMonth$ | async)?.name }}</h2>
+    <button mat-icon-button (click)="nextMonth()" [disabled]="isLoading">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <!-- Budget Lists -->
+  <div class="budget-lists">
+    <!-- Income List -->
+    <mat-card class="income-card">
+      <mat-card-header>
+        <mat-card-title>Income</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <div *ngIf="(incomeItems$ | async)?.length === 0" class="empty-state">
+            <p>No income transactions for this month.</p>
+          </div>
+
+          <mat-list-item *ngFor="let item of incomeItems$ | async" class="budget-item">
+            <div class="item-content">
+              <div class="item-details">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-date">{{ item.date | date:'dd.MM.yyyy' }}</span>
+              </div>
+              <span class="item-amount positive">{{ item.amount | currency:'₸':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <button mat-icon-button color="warn" (click)="deleteBudgetItem(item.id_table)" [disabled]="isLoading" class="delete-button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Expense List -->
+    <mat-card class="expense-card">
+      <mat-card-header>
+        <mat-card-title>Expenses</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <div *ngIf="(expenseItems$ | async)?.length === 0" class="empty-state">
+            <p>No expense transactions for this month.</p>
+          </div>
+
+          <mat-list-item *ngFor="let item of expenseItems$ | async" class="budget-item">
+            <div class="item-content">
+              <div class="item-details">
+                <span class="item-name">{{ item.name }}</span>
+                <span class="item-date">{{ item.date | date:'dd.MM.yyyy' }}</span>
+              </div>
+              <span class="item-amount negative">{{ item.amount | currency:'₸':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <button mat-icon-button color="warn" (click)="deleteBudgetItem(item.id_table)" [disabled]="isLoading" class="delete-button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

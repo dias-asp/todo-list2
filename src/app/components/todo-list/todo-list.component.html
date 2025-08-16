@@ -1,0 +1,44 @@
+<div class="todo-container">
+  <h1 class="mat-headline-4 text-center">Todo Lists</h1>
+  
+  <!-- Add new list form -->
+  <mat-card class="add-list-card">
+    <mat-card-header>
+      <mat-card-title>Create New List</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="addList()" class="form-container">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>List Name</mat-label>
+          <input matInput [formControl]="newListName" placeholder="Enter list name">
+          <mat-error *ngIf="newListName.invalid">List name is required</mat-error>
+        </mat-form-field>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit" 
+          [disabled]="newListName.invalid || isLoading">
+          <mat-icon>add</mat-icon>
+          Add List
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Lists -->
+  <div class="lists-container">
+    <h2 class="mat-headline-5">Your Lists</h2>
+    
+    <div *ngIf="(lists$ | async)?.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">list</mat-icon>
+      <p>You don't have any lists yet. Create one above!</p>
+    </div>
+    
+    <div class="lists-grid">
+      <app-list-item 
+        *ngFor="let list of lists$ | async" 
+        [list]="list">
+      </app-list-item>
+    </div>
+  </div>
+</div>

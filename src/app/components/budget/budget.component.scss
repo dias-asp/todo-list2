@@ -1,0 +1,172 @@
+.budget-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.balance-card {
+  margin-bottom: 24px;
+  background-color: #f8f9fa;
+}
+
+.balance-display {
+  text-align: center;
+  padding: 16px 0;
+
+  h2 {
+    margin-bottom: 16px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .balance-amount {
+    font-size: 2.5rem;
+    font-weight: 500;
+
+    &.positive {
+      color: #4caf50;
+    }
+
+    &.negative {
+      color: #f44336;
+    }
+  }
+}
+
+.add-item-card {
+  margin-bottom: 24px;
+
+  form {
+    button {
+      align-self: flex-end;
+      margin-top: 8px;
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.month-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+
+  .month-display {
+    margin: 0 16px;
+    font-size: 1.5rem;
+    text-transform: capitalize;
+  }
+}
+
+.budget-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.income-card, .expense-card {
+  height: 100%;
+
+  mat-card-header {
+    margin-bottom: 16px;
+  }
+}
+
+.income-card {
+  mat-card-title {
+    color: #4caf50;
+  }
+}
+
+.expense-card {
+  mat-card-title {
+    color: #f44336;
+  }
+}
+
+.budget-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  height: auto !important;
+  padding: 8px 0;
+
+  .item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .item-details {
+      display: flex;
+      flex-direction: column;
+
+      .item-name {
+        font-weight: 500;
+      }
+
+      .item-date {
+        font-size: 0.8rem;
+        color: rgba(0, 0, 0, 0.54);
+      }
+    }
+
+    .item-amount {
+      font-weight: 500;
+
+      &.positive {
+        color: #4caf50;
+      }
+
+      &.negative {
+        color: #f44336;
+      }
+    }
+  }
+
+  .delete-button {
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
+  &:hover {
+    .delete-button {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .delete-button {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px 0;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
+
+  .balance-amount {
+    font-size: 2rem;
+  }
+}
