@@ -132,13 +132,15 @@ export class TodoService {
   toggleTaskCompletion(taskId: number): Observable<Task> {
     const task = this.tasksSubject.value.find(t => t.id === taskId);
 
+    console.log(task);
+
     if (!task) {
       return of() as Observable<Task>;
     }
 
     const updatedStatus = !task.completed;
 
-    return this.airtableService.updateRecord<any>(this.TASKS_TABLE, taskId, { 
+    return this.airtableService.updateRecord<any>(this.TASKS_TABLE, task.id_table, {
       Status: updatedStatus 
     }).pipe(
       map(response => ({
@@ -167,5 +169,39 @@ export class TodoService {
           this.tasksSubject.next(currentTasks.filter(task => task.id_table !== taskId));
         })
       );
+  }
+
+  // Delete all completed tasks for a specific list
+  deleteCompletedTasks(listId: number): Observable<any> {
+    // Get all completed tasks for the list
+    const currentTasks = this.tasksSubject.value;
+    const completedTasks = currentTasks.filter(task => 
+      task.listId === listId && task.completed
+    );
+
+    if (completedTasks.length === 0) {
+      // If no completed tasks, return an observable that completes immediately
+      return of(null);
+    }
+
+    // Create delete requests for all completed tasks
+    const deleteRequests = completedTasks.map(task => 
+      this.airtableService.deleteRecord(this.TASKS_TABLE, task.id_table)
+    );
+
+    // Use forkJoin to execute all delete requests in parallel
+    return forkJoin(deleteRequests).pipe(
+      tap(() => {
+        // Update the tasks subject to remove the deleted tasks
+        const updatedTasks = currentTasks.filter(task => 
+          !(task.listId === listId && task.completed)
+        );
+        this.tasksSubject.next(updatedTasks);
+      }),
+      catchError(error => {
+        console.error('Error deleting completed tasks:', error);
+        return of(null);
+      })
+    );
   }
 }

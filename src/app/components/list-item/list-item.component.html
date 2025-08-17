@@ -8,7 +8,16 @@
 
   <mat-card-content>
     <div class="task-count">
-      <span>{{ (tasks$ | async)?.length || 0 }} tasks {{list.id}}</span>
+      <span>{{ (tasks$ | async)?.length || 0 }} tasks</span>
+      <button 
+        mat-button 
+        color="accent" 
+        (click)="deleteCompletedTasks()" 
+        [disabled]="isLoading"
+        aria-label="Delete completed tasks">
+        <mat-icon>cleaning_services</mat-icon>
+        Delete Completed
+      </button>
     </div>
 
     <div class="tasks-container fade-in">

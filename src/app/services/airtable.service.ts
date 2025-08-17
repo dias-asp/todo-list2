@@ -64,7 +64,7 @@ export class AirtableService {
       );
   }
 
-  updateRecord<T>(tableName: string, recordId: number, fields: any): Observable<T> {
+  updateRecord<T>(tableName: string, recordId: string, fields: any): Observable<T> {
     const data = { fields };
     return this.http.patch(`${this.BASE_URL}/${tableName}/${recordId}`, data, { headers: this.getHeaders() })
       .pipe(

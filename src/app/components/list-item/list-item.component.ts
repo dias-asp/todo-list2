@@ -116,4 +116,36 @@ export class ListItemComponent implements OnInit {
       }
     });
   }
+
+  deleteCompletedTasks(): void {
+    // Set loading state to prevent multiple clicks
+    this.isLoading = true;
+
+    this.todoService.deleteCompletedTasks(this.list.id).subscribe({
+      next: (result) => {
+        this.isLoading = false;
+
+        // Check if any tasks were deleted
+        if (result === null) {
+          this.snackBar.open('No completed tasks to delete', 'Close', {
+            duration: 3000
+          });
+        } else {
+          this.snackBar.open('Completed tasks deleted successfully', 'Close', {
+            duration: 3000
+          });
+        }
+
+        // Refresh tasks list to ensure UI is updated
+        this.tasks$ = this.todoService.getTasksForList(this.list.id);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error deleting completed tasks:', error);
+        this.snackBar.open('Error deleting completed tasks', 'Close', {
+          duration: 3000
+        });
+      }
+    });
+  }
 }
