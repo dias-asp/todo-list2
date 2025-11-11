@@ -1,0 +1,12 @@
+rules:
+  - id: typescript-angular-template-injection
+    pattern: $TEMPLATE.replace(/{{(.+?)}}/g, ...)
+    message: Potential template injection vulnerability
+    languages: [typescript]
+    severity: WARNING
+
+  - id: typescript-angular-xss
+    pattern: this.sanitizer.bypassSecurityTrustHtml(...)
+    message: Bypassing Angular's built-in XSS protection
+    languages: [typescript]
+    severity: ERROR
