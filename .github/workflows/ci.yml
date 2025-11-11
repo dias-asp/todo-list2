@@ -30,6 +30,26 @@ jobs:
       - name: Test
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
 
+  semgrep:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Semgrep Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
+          config: >-
+            p/default
+
+      - name: Archive Semgrep Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-report
+          path: semgrep.sarif
+
   sonarqube:
     name: SonarQube
     runs-on: windows-latest
@@ -41,14 +61,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # Semgrep Analysis
-      - name: Semgrep Scan
-        uses: returntocorp/semgrep-action@v1
-        with:
-          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
-          publishDeployment: ${{ secrets.SEMGREP_DEPLOYMENT_ID }}
-          generateSarif: "1"
 
       # JetBrains Qodana Scan
       - name: Qodana Scan
@@ -66,12 +78,6 @@ jobs:
         with:
           name: sonarqube-report
           path: .scannerwork/report-task.txt
-
-      - name: Archive Semgrep Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: semgrep-report
-          path: semgrep.sarif
 
       - name: Archive Qodana Report
         uses: actions/upload-artifact@v4
