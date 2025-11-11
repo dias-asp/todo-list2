@@ -66,7 +66,6 @@ jobs:
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2023.3
         with:
-          args: --non-incremental
           pr-mode: false
           upload-result: true
         env:
