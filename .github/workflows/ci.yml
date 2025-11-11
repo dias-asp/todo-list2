@@ -30,17 +30,17 @@ jobs:
       - name: Test
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
 
-      # SonarQube Analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
+  sonarqube:
+    name: SonarQube
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
         with:
-          args: >
-            -Dsonar.projectKey=angular-todo-budget
-            -Dsonar.organization=your-organization
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'https://sonarcloud.io' }}
 
       # Semgrep Analysis
       - name: Semgrep Scan
