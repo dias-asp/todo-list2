@@ -1,6 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { Component, Input } from '@angular/core';
+
+// Create a stub for the HeaderComponent
+@Component({
+  selector: 'app-header',
+  template: '<div>Header Stub</div>'
+})
+class HeaderStubComponent {
+  @Input() title: string = '';
+}
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -9,7 +19,8 @@ describe('AppComponent', () => {
         RouterTestingModule
       ],
       declarations: [
-        AppComponent
+        AppComponent,
+        HeaderStubComponent
       ],
     }).compileComponents();
   });
