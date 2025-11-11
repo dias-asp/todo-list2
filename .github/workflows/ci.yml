@@ -65,19 +65,19 @@ jobs:
 
       # Export Analysis Reports as Artifacts
       - name: Archive SonarQube Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sonarqube-report
           path: .scannerwork/report-task.txt
 
       - name: Archive Semgrep Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: semgrep-report
           path: semgrep.sarif
 
       - name: Archive Qodana Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: qodana-report
           path: qodana/report
