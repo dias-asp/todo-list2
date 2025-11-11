@@ -68,26 +68,3 @@ jobs:
         with:
           name: sonarqube-report
           path: .scannerwork/report-task.txt
-
-  qodana:
-    name: Qodana
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      # JetBrains Qodana Scan
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2023.3
-        with:
-          pr-mode: false
-          upload-result: true
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_2051386211 }}
-
-      # Export Qodana Report as Artifact
-      - name: Archive Qodana Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: qodana-report
-          path: qodana/report
