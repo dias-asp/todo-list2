@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for better SonarQube analysis
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -30,54 +30,41 @@ jobs:
       - name: Test
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
 
-      # SonarQube Analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  semgrep:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
         with:
-          args: >
-            -Dsonar.projectKey=angular-todo-budget
-            -Dsonar.organization=your-organization
-            -Dsonar.sources=src
-            -Dsonar.tests=src
-            -Dsonar.test.inclusions=**/*.spec.ts
-            -Dsonar.typescript.lcov.reportPaths=coverage/lcov.info
-
-      # Semgrep Analysis
+          fetch-depth: 0
       - name: Semgrep Scan
         uses: returntocorp/semgrep-action@v1
         with:
           publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
-          publishDeployment: ${{ secrets.SEMGREP_DEPLOYMENT_ID }}
-          generateSarif: "1"
-
-      # JetBrains Qodana Scan
-      - name: Qodana Scan
-        uses: JetBrains/qodana-action@v2023.3
-        with:
-          args: --non-incremental
-          pr-mode: false
-          upload-result: true
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_2051386211 }}
-
-      # Export Analysis Reports as Artifacts
-      - name: Archive SonarQube Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: sonarqube-report
-          path: .scannerwork/report-task.txt
+          config: >-
+            p/default
 
       - name: Archive Semgrep Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: semgrep-report
           path: semgrep.sarif
 
-      - name: Archive Qodana Report
-        uses: actions/upload-artifact@v3
+  sonarqube:
+    name: SonarQube
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
         with:
-          name: qodana-report
-          path: qodana/report
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Export SonarQube Report as Artifact
+      - name: Archive SonarQube Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonarqube-report
+          path: .scannerwork/report-task.txt
