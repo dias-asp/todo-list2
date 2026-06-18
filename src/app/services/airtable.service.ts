@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable, EMPTY } from 'rxjs';
+import { map, expand, reduce } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AirtableService {
-  private readonly BASE_ID = 'appUfYNiRFYJShBvy';
-  private readonly API_TOKEN = 'patjQIbx6o2yZrYKY.36130faa2834465fd93912bdb1df8a7d609d2769ae224fc1f5ee52ef49d7d248';
+  private readonly BASE_ID = environment.airtable.baseId;
+  private readonly API_TOKEN = environment.airtable.apiToken;
   private readonly BASE_URL = `https://api.airtable.com/v0/${this.BASE_ID}`;
 
   constructor(private http: HttpClient) { }
@@ -26,17 +27,32 @@ export class AirtableService {
   }
 
   getRecords<T>(tableName: string): Observable<T[]> {
-    return this.http.get(`${this.BASE_URL}/${tableName}`, { headers: this.getHeaders() })
-      .pipe(
-        map((response: any) => {
-          return response.records.map((record: any) => {
-            return {
-              id_table: record.id,
-              ...record.fields
-            } as T;
-          });
-        })
-      );
+    // Airtable returns at most 100 records per request and provides an `offset`
+    // token to fetch the next page. Keep paging until there is no more offset so
+    // that all records (e.g. more than 100) are returned.
+    return this.fetchPage(tableName).pipe(
+      expand((response: any) =>
+        response.offset ? this.fetchPage(tableName, response.offset) : EMPTY
+      ),
+      reduce((acc: T[], response: any) => {
+        const mapped = response.records.map((record: any) => ({
+          id_table: record.id,
+          ...record.fields
+        } as T));
+        return acc.concat(mapped);
+      }, [] as T[])
+    );
+  }
+
+  private fetchPage(tableName: string, offset?: string): Observable<any> {
+    let params = new HttpParams().set('pageSize', '100');
+    if (offset) {
+      params = params.set('offset', offset);
+    }
+    return this.http.get(`${this.BASE_URL}/${tableName}`, {
+      headers: this.getHeaders(),
+      params
+    });
   }
 
   getRecord<T>(tableName: string, recordId: number): Observable<T> {

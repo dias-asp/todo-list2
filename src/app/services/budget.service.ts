@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { AirtableService } from './airtable.service';
 import { BudgetItem, MonthData } from '../models/budget.model';
@@ -31,6 +31,7 @@ export class BudgetService {
     this.airtableService.getRecords<any>(this.BUDGET_TABLE)
       .pipe(
         map(items => items.map(item => ({
+          id_table: item.id_table,
           id: item.id,
           name: item.name,
           amount: item.amount,
@@ -168,7 +169,7 @@ export class BudgetService {
         }),
         catchError(error => {
           console.error('Error deleting budget item:', error);
-          return of(null);
+          return throwError(() => error);
         })
       );
   }
